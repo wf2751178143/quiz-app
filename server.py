@@ -16,7 +16,16 @@ PORT = int(os.environ.get('PORT', 8080))
 
 # ─── Database ────────────────────────────────────────────────────────────────
 
+def ensure_db():
+    src = os.path.join(BASE_DIR, 'quiz.db')
+    if DATA_DIR != BASE_DIR and not os.path.exists(DB_PATH) and os.path.exists(src):
+        import shutil
+        os.makedirs(DATA_DIR, exist_ok=True)
+        shutil.copy2(src, DB_PATH)
+        print(f"Copied quiz.db from {src} to {DB_PATH}")
+
 def get_db():
+    ensure_db()
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
