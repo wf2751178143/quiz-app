@@ -23,6 +23,20 @@ def ensure_db():
         os.makedirs(DATA_DIR, exist_ok=True)
         shutil.copy2(src, DB_PATH)
         print(f"Copied quiz.db from {src} to {DB_PATH}")
+        _fix_passwords()
+
+def _fix_passwords():
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        col = [c[1] for c in conn.execute("PRAGMA table_info(users)").fetchall()]
+        pcol = 'password_hash' if 'password_hash' in col else 'password'
+        pw = hash_password('123456')
+        conn.execute(f'UPDATE users SET {pcol}=?', (pw,))
+        conn.commit()
+        conn.close()
+        print("Fixed all passwords to 123456")
+    except Exception as e:
+        print(f"Password fix skipped: {e}")
 
 def get_db():
     ensure_db()
