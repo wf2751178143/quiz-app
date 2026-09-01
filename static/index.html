@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>烟草执法证题库</title>
+<style>
+:root{--pri:#4A90D9;--pri-l:#E8F0FE;--ok:#4CAF50;--ok-bg:#E8F5E9;--err:#F44336;--err-bg:#FFEBEE;--warn:#FF9800;--bg:#F0F2F5;--card:#FFF;--txt:#1A1A1A;--txt2:#666;--txt3:#999;--bdr:#E8E8E8;--safe-b:env(safe-area-inset-bottom)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--txt);height:100dvh;overflow:hidden;width:100%;-webkit-overflow-scrolling:touch}
+button{font-family:inherit}
+
+/* Auth */
+.auth{position:fixed;inset:0;background:linear-gradient(135deg,#4A90D9,#357ABD);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:24px}
+.auth-logo{font-size:56px;margin-bottom:12px}
+.auth-title{font-size:24px;font-weight:700;color:#fff;margin-bottom:6px}
+.auth-sub{font-size:14px;color:rgba(255,255,255,.7);margin-bottom:36px}
+.auth-card{background:var(--card);border-radius:16px;padding:28px 24px;width:100%;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+.auth-tabs{display:flex;margin-bottom:24px;background:var(--bg);border-radius:10px;padding:3px}
+.auth-tab{flex:1;padding:10px;border:none;background:none;border-radius:8px;font-size:15px;font-weight:500;color:var(--txt2);cursor:pointer}
+.auth-tab.on{background:var(--card);color:var(--pri);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.auth-field{margin-bottom:16px}
+.auth-field label{display:block;font-size:13px;color:var(--txt2);margin-bottom:6px}
+.auth-field input{width:100%;padding:12px 14px;border:1.5px solid var(--bdr);border-radius:10px;font-size:16px;outline:none}
+.auth-field input:focus{border-color:var(--pri)}
+.auth-btn{width:100%;padding:14px;background:var(--pri);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer}
+.auth-btn:active{opacity:.85}
+.auth-err{color:var(--err);font-size:13px;text-align:center;margin-top:12px;min-height:20px}
+
+/* App */
+.app{display:none;flex-direction:column;height:100dvh}
+.app.on{display:flex}
+
+/* Home */
+.home{flex:1;min-height:0;overflow-y:auto;padding:16px;padding-bottom:calc(80px + var(--safe-b));-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.home-header{text-align:center;padding:20px 0 16px}
+.home-avatar{width:56px;height:56px;border-radius:50%;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 10px}
+.home-name{font-size:18px;font-weight:700}
+.home-stats{display:flex;gap:8px;margin:16px 0}
+.home-stat{flex:1;background:var(--card);border-radius:12px;padding:14px 8px;text-align:center}
+.home-stat-n{font-size:22px;font-weight:700;color:var(--pri)}
+.home-stat-l{font-size:11px;color:var(--txt3);margin-top:2px}
+
+.cat-title{font-size:15px;font-weight:700;color:var(--txt);margin:20px 0 10px;padding-left:4px}
+.law-card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer;transition:transform .1s}
+.law-card:active{transform:scale(.98)}
+.law-card-top{display:flex;align-items:center;margin-bottom:10px}
+.law-card-icon{width:40px;height:40px;border-radius:10px;background:var(--pri-l);display:flex;align-items:center;justify-content:center;font-size:20px;margin-right:12px;flex-shrink:0}
+.law-card-name{flex:1;font-size:15px;font-weight:600;line-height:1.4}
+.law-card-count{font-size:12px;color:var(--txt3)}
+.law-card-bar{height:4px;background:var(--bg);border-radius:2px;margin-bottom:10px}
+.law-card-fill{height:100%;background:var(--pri);border-radius:2px;transition:width .3s}
+.law-card-btn{width:100%;padding:10px;background:var(--pri);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+.law-card-btn:active{opacity:.85}
+.law-card-btn.done{background:var(--ok)}
+.law-card-detail{font-size:12px;color:var(--err);margin-bottom:8px}
+
+/* Practice */
+.practice{display:none;flex-direction:column;height:100dvh}
+.practice.on{display:flex}
+.prac-header{display:flex;align-items:center;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--bdr)}
+.prac-back{padding:6px 10px;border:none;background:none;font-size:18px;cursor:pointer}
+.prac-title{flex:1;font-size:15px;font-weight:600;text-align:center}
+.prac-card-btn{background:none;border:1.5px solid var(--bdr);border-radius:8px;font-size:16px;cursor:pointer;padding:5px 8px;color:var(--txt2)}
+.prac-card-btn:hover{border-color:var(--pri);color:var(--pri)}
+.prac-type{display:flex;gap:6px;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--bdr)}
+.type-chip{padding:6px 16px;border-radius:20px;font-size:13px;border:1.5px solid var(--bdr);background:var(--card);color:var(--txt2);cursor:pointer;white-space:nowrap}
+.type-chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.chip-cnt{font-size:11px;opacity:.7;margin-left:2px}
+.prac-prog{padding:6px 16px;background:var(--card)}
+.prog-info{display:flex;justify-content:space-between;font-size:12px;color:var(--txt3);margin-bottom:4px}
+#pRate{color:var(--pri);font-weight:500}
+.card-panel{background:var(--card);border-bottom:1px solid var(--bdr);padding:10px 16px;max-height:45vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(36px,1fr));gap:6px}
+.card-cell{width:36px;height:36px;border-radius:8px;border:1.5px solid var(--bdr);background:var(--card);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;color:var(--txt2);transition:all .15s}
+.card-cell.cur{border-color:var(--pri);color:var(--pri);font-weight:700;box-shadow:0 0 0 2px rgba(26,115,232,0.2)}
+.card-cell.done{background:#E8F5E9;border-color:#4CAF50;color:#2E7D32}
+.card-cell.wrong{background:#FFEBEE;border-color:#EF5350;color:#C62828}
+.prog-track{height:3px;background:var(--bdr);border-radius:2px}
+.prog-fill{height:100%;background:var(--pri);border-radius:2px;transition:width .3s}
+.q-scroll{flex:1;min-height:0;overflow-y:auto;padding:16px;padding-bottom:calc(80px + var(--safe-b));-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.q-card{background:var(--card);border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.04);animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.q-head{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.q-badge{padding:3px 10px;border-radius:5px;font-size:12px;font-weight:600}
+.q-badge.s{background:#E3F2FD;color:#1565C0}
+.q-badge.m{background:#FFF3E0;color:#E65100}
+.q-badge.j{background:#F3E5F5;color:#7B1FA2}
+.q-num{font-size:13px;color:var(--txt3)}
+.q-law{font-size:12px;color:var(--txt3);margin-left:auto;margin-right:8px}
+.q-bm{margin-left:auto;padding:4px 10px;border:1.5px solid var(--bdr);background:none;border-radius:6px;font-size:13px;cursor:pointer;color:var(--txt3)}
+.q-bm.on{color:var(--warn);border-color:var(--warn);background:#FFF8E1}
+.q-stem{font-size:16px;line-height:1.75;margin-bottom:18px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;align-items:flex-start;padding:14px;border:2px solid var(--bdr);border-radius:12px;cursor:pointer;transition:all .12s}
+.opt:active:not(.lk){transform:scale(.98)}
+.opt.sel{border-color:var(--pri);background:var(--pri-l)}
+.opt.ok{border-color:var(--ok);background:var(--ok-bg)}
+.opt.err{border-color:var(--err);background:var(--err-bg)}
+.opt.lk{cursor:default}
+.opt-lt{width:30px;height:30px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;margin-right:12px;flex-shrink:0}
+.opt.sel .opt-lt{background:var(--pri);color:#fff}
+.opt.ok .opt-lt{background:var(--ok);color:#fff}
+.opt.err .opt-lt{background:var(--err);color:#fff}
+.opt-txt{flex:1;line-height:1.6;padding-top:3px;font-size:15px}
+.jdg{display:flex;gap:14px}
+.jdg-btn{flex:1;padding:18px;border:2px solid var(--bdr);border-radius:12px;text-align:center;cursor:pointer;font-size:22px;transition:all .12s}
+.jdg-btn:active:not(.lk){transform:scale(.96)}
+.jdg-btn.sel{border-color:var(--pri);background:var(--pri-l)}
+.jdg-btn.ok{border-color:var(--ok);background:var(--ok-bg)}
+.jdg-btn.err{border-color:var(--err);background:var(--err-bg)}
+.jdg-btn.lk{cursor:default}
+.sub-wrap{text-align:center;margin-top:18px}
+.sub-btn{padding:13px 56px;background:var(--pri);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer}
+.sub-btn:active{opacity:.85}
+.res{margin-top:16px;padding:14px 16px;border-radius:10px;display:none}
+.res.on{display:block}
+.res.ok{background:var(--ok-bg);border:1px solid #C8E6C9}
+.res.err{background:var(--err-bg);border:1px solid #FFCDD2}
+.res-t{font-size:16px;font-weight:700;margin-bottom:4px}
+.res.ok .res-t{color:var(--ok)}
+.res.err .res-t{color:var(--err)}
+.res-a{font-size:14px;color:var(--txt2)}
+.info{margin-top:14px;border-top:1px solid var(--bdr);padding-top:14px}
+.info-tog{display:flex;align-items:center;gap:6px;padding:10px 14px;background:var(--bg);border-radius:8px;cursor:pointer;font-size:14px;color:var(--txt2)}
+.info-tog:active{background:var(--pri-l)}
+.info-tog .arr{transition:transform .2s;font-size:12px}
+.info-tog.on .arr{transform:rotate(90deg)}
+.info-body{display:none;padding:12px 14px;background:#FAFAFA;border-radius:8px;font-size:14px;line-height:1.8;white-space:pre-wrap;margin-top:6px}
+.info-body.on{display:block}
+.info-body.law{background:#F5F5F5;border-left:3px solid var(--pri)}
+.note-input{width:100%;min-height:60px;padding:8px 10px;border:1px solid #E0E0E0;border-radius:6px;font-size:14px;line-height:1.6;resize:vertical;font-family:inherit;background:#fff}
+.note-input:focus{border-color:var(--pri);outline:none;box-shadow:0 0 0 2px rgba(26,115,232,0.15)}
+.nav-row{display:flex;gap:10px;padding:12px 0 0}
+.nav-arr{flex:1;padding:11px;border:1.5px solid var(--bdr);background:var(--card);border-radius:10px;font-size:14px;cursor:pointer;text-align:center;color:var(--txt2)}
+.nav-arr:active{background:var(--pri-l);border-color:var(--pri);color:var(--pri)}
+
+/* Bottom */
+.btm{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--bdr);padding-bottom:var(--safe-b);z-index:50}
+.btm-btn{flex:1;padding:8px 0 6px;border:none;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:var(--txt3);font-size:10px}
+.btm-btn.on{color:var(--pri)}
+.btm-btn .ico{font-size:22px}
+
+/* List */
+.lst{padding:16px;padding-bottom:calc(80px + var(--safe-b));overflow-y:auto;-webkit-overflow-scrolling:touch}
+.lst-cnt{font-size:13px;color:var(--txt3);margin-bottom:10px}
+.lst-card{background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer}
+.lst-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.lst-stem{font-size:14px;line-height:1.6}
+.lst-law{font-size:12px;color:var(--txt3);margin-top:6px}
+.lst-rm{margin-left:auto;padding:4px 10px;border:1px solid var(--err);background:none;color:var(--err);border-radius:6px;font-size:12px;cursor:pointer}
+
+/* Profile */
+.prf{padding:16px;padding-bottom:calc(80px + var(--safe-b));overflow-y:auto;-webkit-overflow-scrolling:touch}
+.prf-card{background:var(--card);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px}
+.prf-av{width:64px;height:64px;border-radius:50%;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 12px}
+.prf-name{font-size:18px;font-weight:700}
+.stat-g{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-b{background:var(--card);border-radius:12px;padding:14px 8px;text-align:center}
+.stat-n{font-size:22px;font-weight:700;color:var(--pri)}
+.stat-l{font-size:11px;color:var(--txt3);margin-top:2px}
+.menu{background:var(--card);border-radius:14px;overflow:hidden}
+.menu-i{display:flex;align-items:center;padding:16px;border-bottom:1px solid var(--bg);cursor:pointer}
+.menu-i:last-child{border-bottom:none}
+.menu-i:active{background:var(--bg)}
+.menu-ic{font-size:20px;margin-right:12px}
+.menu-tx{flex:1;font-size:15px}
+.menu-ar{color:var(--txt3)}
+
+.empty{text-align:center;padding:60px 20px;color:var(--txt3)}
+.empty .ico{font-size:48px;margin-bottom:12px}
+.lst-filter{display:flex;gap:6px;padding:10px 0;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.lst-filter:last-child{flex-wrap:wrap}
+.lst-group{margin-bottom:16px}
+.lst-group-title{font-size:14px;font-weight:700;color:var(--pri);padding:8px 0 6px;border-bottom:1.5px solid var(--pri-l);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.lst-group-cnt{font-size:12px;color:var(--txt3);font-weight:400}
+</style>
+</head>
+<body>
+
+<!-- Auth -->
+<div class="auth" id="authPage">
+  <div class="auth-logo">📚</div>
+  <div class="auth-title">烟草执法证题库</div>
+  <div class="auth-sub">2089道真题 · 随时随地刷题</div>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab on" onclick="showAuthTab('login')">登录</button>
+      <button class="auth-tab" onclick="showAuthTab('register')">注册</button>
+    </div>
+    <div class="auth-field"><label>用户名</label><input id="aUser" maxlength="20" placeholder="请输入用户名"></div>
+    <div class="auth-field"><label>密码</label><input id="aPass" type="password" maxlength="32" placeholder="请输入密码"></div>
+    <button class="auth-btn" id="aBtn" onclick="doAuth()">登录</button>
+    <div class="auth-err" id="aErr"></div>
+  </div>
+</div>
+
+<!-- App -->
+<div class="app" id="app">
+  <!-- Home Page -->
+  <div class="home" id="homePage">
+    <div class="home-header">
+      <div class="home-avatar" id="hAvatar">?</div>
+      <div class="home-name" id="hName">--</div>
+    </div>
+    <div class="home-stats">
+      <div class="home-stat"><div class="home-stat-n" id="hTotal">0</div><div class="home-stat-l">总题数</div></div>
+      <div class="home-stat"><div class="home-stat-n" id="hDone">0</div><div class="home-stat-l">已做</div></div>
+      <div class="home-stat"><div class="home-stat-n" id="hCorrect">0</div><div class="home-stat-l">正确</div></div>
+      <div class="home-stat"><div class="home-stat-n" id="hWrong">0</div><div class="home-stat-l">错题</div></div>
+    </div>
+    <div id="examBtns"></div>
+    <div id="lawList"></div>
+  </div>
+
+  <!-- Practice Page -->
+  <div class="practice" id="pracPage">
+    <div class="prac-header">
+      <button class="prac-back" onclick="goHome()">←</button>
+      <span class="prac-title" id="pracTitle">--</span>
+      <button class="prac-card-btn" onclick="togCard()">📋</button>
+    </div>
+    <div class="prac-type" id="pracType">
+      <div class="type-chip on" onclick="setType('all')">全部</div>
+      <div class="type-chip" onclick="setType('单选')">单选</div>
+      <div class="type-chip" onclick="setType('多选')">多选</div>
+      <div class="type-chip" onclick="setType('判断')">判断</div>
+    </div>
+    <div class="prac-prog">
+      <div class="prog-info"><span id="pText">第1题/共0题</span><span id="pRate"></span><span id="pPct">0%</span></div>
+      <div class="prog-track"><div class="prog-fill" id="pFill" style="width:0%"></div></div>
+    </div>
+    <div class="card-panel" id="cardPanel" style="display:none"><div class="card-grid" id="cardGrid"></div></div>
+    <div class="q-scroll" id="qScroll">
+      <div class="q-card" id="qCard"></div>
+    </div>
+  </div>
+
+  <!-- Wrong List -->
+  <div class="home lst" id="wrongPage" style="display:none"></div>
+  <!-- Bookmark List -->
+  <div class="home lst" id="bmPage" style="display:none"></div>
+  <!-- Exam Page -->
+  <div class="practice" id="examPage" style="display:none">
+    <div class="prac-header">
+      <button class="prac-back" onclick="endExam()">←</button>
+      <span class="prac-title" id="examTitle">模拟考试</span>
+      <button class="prac-card-btn" onclick="togExamCard()">📋</button>
+    </div>
+    <div class="prac-prog">
+      <div class="prog-info"><span id="examText">第1题/共100题</span><span id="examRate"></span><span id="examPct">0%</span></div>
+      <div class="prog-track"><div class="prog-fill" id="examFill" style="width:0%"></div></div>
+    </div>
+    <div class="card-panel" id="examCardPanel" style="display:none"><div class="card-grid" id="examCardGrid"></div></div>
+    <div class="q-scroll" id="examScroll">
+      <div class="q-card" id="examCard"></div>
+    </div>
+  </div>
+  <!-- Profile -->
+  <div class="home prf" id="prfPage" style="display:none"></div>
+
+  <!-- Bottom Nav -->
+  <div class="btm" id="btmNav">
+    <button class="btm-btn on" onclick="showBtm('home')"><span class="ico">🏠</span>首页</button>
+    <button class="btm-btn" onclick="showBtm('wrong')"><span class="ico">❌</span>错题</button>
+    <button class="btm-btn" onclick="showBtm('bm')"><span class="ico">⭐</span>收藏</button>
+    <button class="btm-btn" onclick="showBtm('prf')"><span class="ico">👤</span>我的</button>
+  </div>
+</div>
+
+<script>
+// ═══ STATE ═══
+let T=localStorage.getItem('qt')||'',U=localStorage.getItem('qu')||'',Q={},LAWS=[],cLaw=null,cType='all',cIdx=0,filt=[],aMode='login',ans={},pendingAns={},sProg={},sBm={},sWrong={},sNotes={},listMode='law',listItems=[];
+// Unique key: law + type + id (many laws reuse same id for 单选/多选/判断)
+function qkey(law,type,id){return law+'|'+type+'|'+id;}
+
+// ═══ API ═══
+async function api(p,m='GET',b=null){
+  const o={method:m,headers:{}};
+  if(T)o.headers.Authorization='Bearer '+T;
+  if(b){o.headers['Content-Type']='application/json';o.body=JSON.stringify(b);}
+  return await(await fetch(p,o)).json();
+}
+
+// ═══ AUTH ═══
+function showAuthTab(m){
+  aMode=m;
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('on',i===(m==='login'?0:1)));
+  document.getElementById('aBtn').textContent=m==='login'?'登录':'注册';
+  document.getElementById('aErr').textContent='';
+}
+async function doAuth(){
+  const u=document.getElementById('aUser').value.trim(),p=document.getElementById('aPass').value;
+  const e=document.getElementById('aErr');
+  if(!u||!p){e.textContent='请输入用户名和密码';return;}
+  const r=await api(aMode==='login'?'/api/login':'/api/register','POST',{username:u,password:p});
+  if(r.error){e.textContent=r.error;return;}
+  T=r.token;U=r.username;localStorage.setItem('qt',T);localStorage.setItem('qu',U);
+  enterApp();
+}
+function doLogout(){T='';U='';localStorage.removeItem('qt');localStorage.removeItem('qu');location.reload();}
+
+// ═══ ENTER ═══
+async function enterApp(){
+  document.getElementById('authPage').style.display='none';
+  document.getElementById('app').classList.add('on');
+  if(!Object.keys(Q).length){
+    const r=await api('/api/questions');
+    if(r.summary){Q=r.summary;Q._type='summary';}
+    else{Q=r;}
+  }
+  if(T){
+    const[p,b,w,n]=await Promise.all([api('/api/progress'),api('/api/bookmarks'),api('/api/wrong'),api('/api/notes')]);
+    sProg=p.error?{}:p;sBm={};(b.error?[]:b).forEach(k=>sBm[k]=true);sWrong={};(w.error?[]:w).forEach(k=>sWrong[k]=true);sNotes=n.error?{}:n;
+  }
+  renderExamBtns();
+  renderHome();
+}
+async function loadLaw(law){
+  if(Q._type==='summary'){
+    for(const cat of Object.keys(Q)){
+      if(cat==='_type')continue;
+      for(const s of Q[cat]){
+        if(s.law===law&&!s.questions){
+          const r=await api('/api/questions?law='+encodeURIComponent(law));
+          if(r[law]){s.questions=r[law][0].questions;}
+          return;
+        }
+      }
+    }
+  }
+}
+
+// ═══ HOME ═══
+function renderHome(){
+  document.getElementById('hAvatar').textContent=U[0]||'?';
+  document.getElementById('hName').textContent=U;
+  const isSummary=Q._type==='summary';
+  let total=0;
+  if(isSummary){Object.keys(Q).forEach(cat=>{if(cat==='_type')return;Q[cat].forEach(s=>total+=s.count||0);});}
+  else{Object.values(Q).forEach(c=>c.forEach(s=>total+=s.questions.length));}
+  const done=Object.keys(sProg).length,wrong=Object.keys(sWrong).length;
+  document.getElementById('hTotal').textContent=total;
+  document.getElementById('hDone').textContent=done;
+  document.getElementById('hCorrect').textContent=done-wrong;
+  document.getElementById('hWrong').textContent=wrong;
+
+  let html='';
+  Object.keys(Q).forEach(cat=>{
+    if(cat==='_type')return;
+    html+=`<div class="cat-title">${cat==='综合法律知识'?'📘 综合法律知识':'📙 专业法律知识'}</div>`;
+    Q[cat].forEach((s,i)=>{
+      const cnt=s.count||(s.questions?s.questions.length:0);
+      let doneCnt=0,wrongCnt=0;
+      if(isSummary){
+        const prefix=s.law+'|';
+        Object.keys(sProg).forEach(k=>{if(k.startsWith(prefix))doneCnt++;});
+        Object.keys(sWrong).forEach(k=>{if(k.startsWith(prefix))wrongCnt++;});
+      }else{
+        doneCnt=s.questions.filter(q=>sProg[qkey(s.law,q.type,q.id)]!==undefined).length;
+        wrongCnt=s.questions.filter(q=>sWrong[qkey(s.law,q.type,q.id)]===true).length;
+      }
+      const pct=cnt>0?Math.round(doneCnt/cnt*100):0;
+      const btnText=pct>=100?'✓ 已完成':doneCnt>0?'继续刷题':'开始刷题';
+      html+=`<div class="law-card" onclick="startLaw('${s.law}')">
+        <div class="law-card-top">
+          <div class="law-card-icon">📖</div>
+          <div class="law-card-name">《${s.law}》</div>
+          <div class="law-card-count">${doneCnt}/${cnt}题</div>
+        </div>
+        <div class="law-card-bar"><div class="law-card-fill" style="width:${pct}%"></div></div>
+        ${wrongCnt>0?`<div class="law-card-detail">❌ ${wrongCnt}道错题</div>`:''}
+        <button class="law-card-btn ${pct>=100?'done':''}">${btnText}</button>
+      </div>`;
+    });
+  });
+  document.getElementById('lawList').innerHTML=html;
+}
+
+// ═══ START LAW ═══
+async function startLaw(law){
+  cLaw=law;cType='all';cIdx=0;listMode='law';listItems=[];
+  document.querySelectorAll('.type-chip').forEach(c=>c.classList.toggle('on',c.textContent==='全'));
+  document.getElementById('pracTitle').textContent='《'+law+'》';
+  cardVisible=false;document.getElementById('cardPanel').style.display='none';
+  showPage('prac');
+  document.getElementById('qCard').innerHTML='<div class="empty"><div class="ico">⏳</div><p>加载中...</p></div>';
+  await loadLaw(law);
+  filterQ();
+  const firstUnanswered=filt.findIndex(q=>sProg[qkey(law,q.type,q.id)]===undefined);
+  cIdx=firstUnanswered>=0?firstUnanswered:0;
+  renderQ();
+}
+
+// ═══ FILTER ═══
+function filterQ(){
+  if(listMode!=='law'){
+    let qs=listItems.slice();
+    if(cType!=='all')qs=qs.filter(q=>q.type===cType);
+    filt=qs;
+    if(cIdx>=filt.length)cIdx=Math.max(0,filt.length-1);
+    return;
+  }
+  LAWS=[];
+  Object.keys(Q).forEach(cat=>{if(cat==='_type')return;Q[cat].forEach(s=>LAWS.push({cat,s}));});
+  let qs=[];
+  Object.keys(Q).forEach(cat=>{if(cat==='_type')return;Q[cat].forEach(s=>{if(s.law===cLaw&&s.questions)qs=s.questions.map(q=>({...q,law:s.law}));});});
+  if(cType!=='all')qs=qs.filter(q=>q.type===cType);
+  filt=qs;
+  if(cIdx>=filt.length)cIdx=Math.max(0,filt.length-1);
+}
+function setType(t){
+  cType=t;
+  document.querySelectorAll('.type-chip').forEach(c=>c.classList.toggle('on',c.textContent.includes(t==='all'?'全':t)));
+  cIdx=0;filterQ();renderQ();
+}
+
+// ═══ RENDER Q ═══
+function renderQ(){
+  const card=document.getElementById('qCard');
+  if(!filt.length){card.innerHTML='<div class="empty"><div class="ico">📭</div><p>暂无题目</p></div>';return;}
+  const q=filt[cIdx],key=qkey(q.law,q.type,q.id),done=ans[key]!==undefined||sProg[key]!==undefined,bm=sBm[key]===true;
+  const pend=pendingAns[key];
+  let bdg=q.type==='单选'?'<span class="q-badge s">单选</span>':q.type==='多选'?'<span class="q-badge m">多选</span>':'<span class="q-badge j">判断</span>';
+  let opts='';
+  if(q.type==='判断'){
+    const uv=done?(ans[key]||sProg[key]):(pend||'');
+    opts=`<div class="jdg">
+      <div class="jdg-btn ${uv==='√'?'sel':''} ${done?'lk':''} ${done&&q.answer==='√'?'ok':''} ${done&&uv==='√'&&q.answer!=='√'?'err':''}" onclick="pickJ(this.dataset.key,'√')" data-key="${key.replace(/"/g,'&quot;')}">✓ 正确</div>
+      <div class="jdg-btn ${uv==='×'?'sel':''} ${done?'lk':''} ${done&&q.answer==='×'?'ok':''} ${done&&uv==='×'&&q.answer!=='×'?'err':''}" onclick="pickJ(this.dataset.key,'×')" data-key="${key.replace(/"/g,'&quot;')}">✗ 错误</div></div>`;
+  }else{
+    opts='<div class="opts">';
+    Object.keys(q.options).forEach(k=>{
+      const isMulti=q.type==='多选';
+      const cur=done?(ans[key]||sProg[key]||''):(isMulti?(pend?pend.join(''):''):(pend||''));
+      const sel=cur.includes(k);
+      let cls='';
+      if(!done)cls=sel?'sel':'';
+      else{
+        const right=q.answer.includes(k),isSel=cur.includes(k);
+        cls=(isSel&&right)?'ok':(isSel&&!right)?'err':(!isSel&&right)?'ok':'';
+      }
+      opts+=`<div class="opt ${cls} ${done?'lk':''}" onclick="pickO(this.dataset.key,'${k}',${isMulti})" data-key="${key.replace(/"/g,'&quot;')}">
+        <span class="opt-lt">${k}</span><span class="opt-txt">${q.options[k]}</span></div>`;
+    });
+    opts+='</div>';
+  }
+  if(!done){
+    const hasSel=q.type==='判断'?!!pend:(q.type==='多选'?(pend&&pend.length>0):!!pend);
+    opts+=`<div class="sub-wrap"><button class="sub-btn" ${hasSel?'':'disabled'} onclick="submitAnswer()">提交答案</button></div>`;
+  }
+  let res='';
+  if(done){
+    const ok=checkA(q,ans[key]||sProg[key]);
+    res=`<div class="res on ${ok?'ok':'err'}"><div class="res-t">${ok?'✓ 回答正确':'✗ 回答错误'}</div><div class="res-a">正确答案：<b>${q.answer}</b></div></div>`;
+  }
+  let info='';
+  if(q.explanation)info+=`<div class="info"><div class="info-tog" onclick="togI(this)"><span class="arr">▶</span> 📝 解析</div><div class="info-body">${esc(q.explanation)}</div></div>`;
+  if(q.legal_ref)info+=`<div class="info"><div class="info-tog" onclick="togI(this)"><span class="arr">▶</span> ⚖️ 法条依据</div><div class="info-body law">${esc(q.legal_ref)}</div></div>`;
+  const noteVal=esc(sNotes[key]||'');
+  info+=`<div class="info"><div class="info-tog" onclick="togI(this)"><span class="arr">▶</span> 📌 我的备注</div><div class="info-body"><textarea class="note-input" placeholder="点击此处添加备注..." onblur="saveNote(this.dataset.key,this.value)" data-key="${key.replace(/"/g,'&quot;')}">${noteVal}</textarea></div></div>`;
+  let nav=`<div class="nav-row"><div class="nav-arr" onclick="goP()">◀ 上一题</div><div class="nav-arr" onclick="goN()">下一题 ▶</div></div>`;
+  card.innerHTML=`<div class="q-head">${bdg}<span class="q-num">第${q.id}题</span><button class="q-bm ${bm?'on':''}" onclick="togBm(this.dataset.key)" data-key="${esc(key)}">${bm?'★':'☆'} 收藏</button></div>
+    <div class="q-stem">${esc(q.stem)}</div>${opts}${res}${info}${nav}`;
+  updProg();
+}
+
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+async function saveNote(key,content){
+  sNotes[key]=content;
+  await api('/api/note','POST',{question_key:key,content:content});
+}
+
+// ═══ PICK ═══
+function pickO(key,ltr,multi){
+  const q=filt[cIdx],k=qkey(q.law,q.type,q.id);
+  if(ans[k]!==undefined||sProg[k]!==undefined)return;
+  if(multi){
+    if(!pendingAns[k])pendingAns[k]=[];
+    const i=pendingAns[k].indexOf(ltr);
+    if(i>=0)pendingAns[k].splice(i,1);else pendingAns[k].push(ltr);
+  }else{
+    pendingAns[k]=ltr;
+  }
+  renderQ();
+}
+function pickJ(key,v){
+  const q=filt[cIdx],k=qkey(q.law,q.type,q.id);
+  if(ans[k]!==undefined||sProg[k]!==undefined)return;
+  pendingAns[k]=v;
+  renderQ();
+}
+function submitAnswer(){
+  const q=filt[cIdx],key=qkey(q.law,q.type,q.id);
+  if(ans[key]!==undefined||sProg[key]!==undefined)return;
+  const p=pendingAns[key];
+  if(p===undefined||(q.type==='多选'&&p.length===0))return;
+  let ua=q.type==='多选'?Array.from(p).sort().join(''):p;
+  ans[key]=ua;delete pendingAns[key];saveP(key,ua);renderQ();
+}
+
+// ═══ CHECK ═══
+function checkA(q,ua){if(!ua)return false;if(q.type==='判断')return ua===q.answer;return ua.split('').sort().join('')===q.answer.split('').sort().join('');}
+
+// ═══ SAVE ═══
+async function saveP(key,ua){
+  const q=filt[cIdx],ok=checkA(q,ua);
+  sProg[key]=ua;
+  api('/api/progress','POST',{question_key:key,status:ua});
+  if(!ok){sWrong[key]=true;api('/api/wrong','POST',{question_key:key,action:'add'});}
+}
+async function togBm(key){
+  console.log('[BM] toggling key:', key);
+  const r=await api('/api/bookmark','POST',{question_key:key});
+  console.log('[BM] server response:', r);
+  if(r.bookmarked)sBm[key]=true;else delete sBm[key];renderQ();
+}
+
+// ═══ NAV ═══
+function goP(){if(cIdx>0){cIdx--;renderQ();}}
+function goN(){if(cIdx<filt.length-1){cIdx++;renderQ();}}
+
+// ═══ SWIPE GESTURE ═══
+let touchStartX=0,touchStartY=0,touchStartTime=0;
+document.addEventListener('DOMContentLoaded',()=>{
+  const qs=document.getElementById('qScroll');
+  if(!qs)return;
+  qs.addEventListener('touchstart',e=>{
+    const t=e.touches[0];touchStartX=t.clientX;touchStartY=t.clientY;touchStartTime=Date.now();
+  },{passive:true});
+  qs.addEventListener('touchend',e=>{
+    const t=e.changedTouches[0];
+    const dx=t.clientX-touchStartX,dy=t.clientY-touchStartY;
+    const dt=Date.now()-touchStartTime;
+    if(dt<300&&Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5){
+      if(dx<0)goN();else goP();
+    }
+  },{passive:true});
+});
+
+function updProg(){
+  const t=filt.length,c=t>0?cIdx+0:0;
+  document.getElementById('pText').textContent=`第${cIdx+1}题/共${t}题`;
+  const p=t>0?Math.round(cIdx/t*100):0;
+  document.getElementById('pPct').textContent=p+'%';
+  document.getElementById('pFill').style.width=p+'%';
+  // Correct rate
+  let doneCnt=0,correctCnt=0;
+  filt.forEach(q=>{
+    const k=qkey(q.law,q.type,q.id);
+    if(sProg[k]!==undefined||ans[k]!==undefined){
+      doneCnt++;
+      const ok=checkA(q,sProg[k]||ans[k]);
+      if(ok)correctCnt++;
+    }
+  });
+  const rate=doneCnt>0?Math.round(correctCnt/doneCnt*100)+'%':'--';
+  document.getElementById('pRate').textContent=doneCnt>0?`正确率 ${rate} (${correctCnt}/${doneCnt})`:'';
+  renderCard();
+}
+let cardVisible=false;
+function togCard(){
+  cardVisible=!cardVisible;
+  document.getElementById('cardPanel').style.display=cardVisible?'block':'none';
+  if(cardVisible)renderCard();
+}
+function renderCard(){
+  if(!cardVisible)return;
+  const g=document.getElementById('cardGrid');
+  const maxShow=Math.min(filt.length,200);
+  let html=filt.slice(0,maxShow).map((q,i)=>{
+    const k=qkey(q.law,q.type,q.id);
+    const isCur=i===cIdx;
+    const isDone=sProg[k]!==undefined||ans[k]!==undefined;
+    const isWrong=isDone&&sWrong[k];
+    const cls=isCur?'cur':isWrong?'wrong':isDone?'done':'';
+    return `<div class="card-cell ${cls}" onclick="jumpTo(${i})">${i+1}</div>`;
+  }).join('');
+  if(filt.length>maxShow)html+=`<div style="grid-column:1/-1;text-align:center;color:var(--txt3);font-size:12px;padding:4px">共${filt.length}题</div>`;
+  html+=`<div class="card-cell" onclick="clearCurrentList()" style="background:var(--err-bg);border-color:var(--err);color:var(--err);font-size:18px" title="清除记录">🗑</div>`;
+  g.innerHTML=html;
+}
+async function clearCurrentList(){
+  const label=listMode==='wrong'?'错题':listMode==='bookmark'?'收藏':'《'+cLaw+'》';
+  if(!confirm('确定清除'+label+'的所有答题记录？'))return;
+  for(const q of filt){
+    const k=qkey(q.law,q.type,q.id);
+    delete sProg[k];delete ans[k];delete pendingAns[k];
+    if(sWrong[k]){delete sWrong[k];await api('/api/wrong','POST',{question_key:k,action:'remove'});}
+    await api('/api/progress','POST',{question_key:k,status:null});
+  }
+  if(listMode==='wrong'||listMode==='bookmark'){
+    listItems=listItems.filter(q=>{const k=qkey(q.law,q.type,q.id);return sProg[k]!==undefined;});
+    filt=filt.filter(q=>{const k=qkey(q.law,q.type,q.id);return sProg[k]!==undefined;});
+    if(!filt.length){goHome();return;}
+    if(cIdx>=filt.length)cIdx=filt.length-1;
+  }
+  renderCard();renderQ();updProg();renderHome();
+}
+function jumpTo(i){cIdx=i;renderQ();updProg();}
+function togI(el){el.classList.toggle('on');el.nextElementSibling.classList.toggle('on');}
+
+// ═══ PAGES ═══
+function showPage(p){
+  ['homePage','pracPage','examPage','wrongPage','bmPage','prfPage'].forEach(id=>{const e=document.getElementById(id);e.style.display='none';e.classList.remove('on');});
+  document.getElementById('btmNav').style.display='flex';
+  if(p==='home'){document.getElementById('homePage').style.display='block';}
+  else if(p==='prac'){const e=document.getElementById('pracPage');e.style.display='flex';e.classList.add('on');document.getElementById('btmNav').style.display='none';}
+  else if(p==='exam'){const e=document.getElementById('examPage');e.style.display='flex';e.classList.add('on');document.getElementById('btmNav').style.display='none';}
+  else if(p==='wrong'){document.getElementById('wrongPage').style.display='block';renderWrong();}
+  else if(p==='bm'){document.getElementById('bmPage').style.display='block';renderBm();}
+  else if(p==='prf'){document.getElementById('prfPage').style.display='block';renderPrf();}
+}
+function showBtm(p){
+  document.querySelectorAll('.btm-btn').forEach((b,i)=>b.classList.toggle('on',['home','wrong','bm','prf'][i]===p));
+  showPage(p);
+}
+function goHome(){
+  if(listMode==='wrong'){showPage('wrong');}
+  else if(listMode==='bookmark'){showPage('bm');}
+  else{showPage('home');renderHome();}
+}
+
+// ═══ LIST FILTER STATE ═══
+let wrongTypeFilter='all', bmTypeFilter='all', wrongLawFilter='all', bmLawFilter='all';
+
+// ═══ GROUPED LIST HELPER ═══
+function groupByLaw(items){
+  const map={};
+  items.forEach(q=>{
+    if(!map[q.law])map[q.law]=[];
+    map[q.law].push(q);
+  });
+  return map;
+}
+function renderGroupedList(items, rmFn, typeFilter, setFilterFn, lawFilter, setLawFilterFn, listMode){
+  if(!items.length)return '<div class="empty"><div class="ico">🎉</div><p>暂无数据</p></div>';
+  let h='<div class="lst-cnt">共 '+items.length+' 道题</div>';
+  const grouped=groupByLaw(items);
+  const laws=Object.keys(grouped);
+  h+='<div class="lst-filter law-filter">';
+  h+=`<div class="type-chip ${lawFilter==='all'?'on':''}" onclick="${setLawFilterFn}('all')">全部法律</div>`;
+  laws.forEach(law=>{
+    h+=`<div class="type-chip ${lawFilter===law?'on':''}" onclick="${setLawFilterFn}('${law.replace(/'/g,"\\'")}')">《${law}》<span class="chip-cnt">${grouped[law].length}</span></div>`;
+  });
+  h+='</div>';
+  h+='<div class="lst-filter">';
+  ['all','单选','多选','判断'].forEach(t=>{
+    const label=t==='all'?'全部':t;
+    h+=`<div class="type-chip ${typeFilter===t?'on':''}" onclick="${setFilterFn}('${t}')">${label}</div>`;
+  });
+  h+='</div>';
+  const filtered=lawFilter==='all'?grouped:(grouped[lawFilter]?{[lawFilter]:grouped[lawFilter]}:{});
+  Object.keys(filtered).forEach(law=>{
+    const qs=filtered[law].filter(q=>typeFilter==='all'||q.type===typeFilter);
+    if(!qs.length)return;
+    h+=`<div class="lst-group"><div class="lst-group-title">《${law}》<span class="lst-group-cnt">${qs.length}题</span></div>`;
+    qs.forEach(q=>{
+      const badge=q.type==='单选'?'s':q.type==='多选'?'m':'j';
+      const k=qkey(q.law,q.type,q.id);
+      h+=`<div class="lst-card" onclick="startListPractice('${listMode}','${q.law}','${q.type}',${q.id})">
+        <div class="lst-top"><span class="q-badge ${badge}">${q.type}</span>
+        <button class="lst-rm" onclick="event.stopPropagation();${rmFn}('${k.replace(/'/g,"\\'")}')">移除</button></div>
+        <div class="lst-stem">${esc(q.stem.slice(0,80))}${q.stem.length>80?'...':''}</div>
+        <div class="lst-law">第${q.id}题</div></div>`;
+    });
+    h+='</div>';
+  });
+  return h;
+}
+
+// ═══ LAZY LOAD HELPER ═══
+async function loadLawsForKeys(keys){
+  const laws=new Set();
+  keys.forEach(k=>{const p=k.split('|');if(p.length>=1)laws.add(p[0]);});
+  for(const law of laws){await loadLaw(law);}
+}
+
+// ═══ WRONG LIST ═══
+async function renderWrong(){
+  await loadLawsForKeys(Object.keys(sWrong));
+  let items=[];
+  Object.keys(Q).forEach(cat=>{if(cat==='_type')return;Q[cat].forEach(s=>{if(!s.questions)return;s.questions.forEach(q=>{
+    const k=qkey(s.law,q.type,q.id);
+    if(sWrong[k]){
+      if(wrongTypeFilter!=='all'&&q.type!==wrongTypeFilter)return;
+      items.push({...q,law:s.law});
+    }
+  });});});
+  document.getElementById('wrongPage').innerHTML=renderGroupedList(items,'rmW',wrongTypeFilter,'setWrongType',wrongLawFilter,'setWrongLaw','wrong');
+}
+function setWrongType(t){wrongTypeFilter=t;renderWrong();}
+function setWrongLaw(l){wrongLawFilter=l;wrongTypeFilter='all';renderWrong();}
+async function rmW(k){delete sWrong[k];await api('/api/wrong','POST',{question_key:k,action:'remove'});renderWrong();renderHome();}
+
+// ═══ BOOKMARK LIST ═══
+async function renderBm(){
+  await loadLawsForKeys(Object.keys(sBm));
+  let items=[];
+  Object.keys(Q).forEach(cat=>{if(cat==='_type')return;Q[cat].forEach(s=>{if(!s.questions)return;s.questions.forEach(q=>{
+    const k=qkey(s.law,q.type,q.id);
+    if(sBm[k]){
+      if(bmTypeFilter!=='all'&&q.type!==bmTypeFilter)return;
+      items.push({...q,law:s.law});
+    }
+  });});});
+  document.getElementById('bmPage').innerHTML=renderGroupedList(items,'rmB',bmTypeFilter,'setBmType',bmLawFilter,'setBmLaw','bookmark');
+}
+function setBmType(t){bmTypeFilter=t;renderBm();}
+function setBmLaw(l){bmLawFilter=l;bmTypeFilter='all';renderBm();}
+async function rmB(k){delete sBm[k];await api('/api/bookmark','DELETE',{question_key:k});renderBm();renderHome();}
+
+// ═══ EXAM ═══
+let examQ=[],examIdx=0,examAns={},examPending={},examActive=false,examCardVis=false;
+
+function renderExamBtns(){
+  document.getElementById('examBtns').innerHTML=`
+    <div class="cat-title">📝 模拟考试</div>
+    <div style="display:flex;gap:10px;margin-bottom:16px">
+      <button onclick="startExam('pro')" style="flex:1;padding:14px;border-radius:12px;border:1.5px solid var(--bdr);background:var(--card);font-size:14px;font-weight:600;cursor:pointer;color:var(--txt)">📙 专业法律<br><span style="font-size:12px;color:var(--txt3);font-weight:400">100题</span></button>
+      <button onclick="startExam('com')" style="flex:1;padding:14px;border-radius:12px;border:1.5px solid var(--bdr);background:var(--card);font-size:14px;font-weight:600;cursor:pointer;color:var(--txt)">📘 综合法律<br><span style="font-size:12px;color:var(--txt3);font-weight:400">100题</span></button>
+    </div>`;
+}
+
+async function startExam(type){
+  examActive=true;examIdx=0;examAns={};examPending={};examCardVis=false;
+  document.getElementById('examTitle').textContent=type==='pro'?'专业法律模拟考试':'综合法律模拟考试';
+  document.getElementById('examCardPanel').style.display='none';
+  showPage('exam');
+  const r=await api('/api/exam?type='+type);
+  examQ=r.questions||[];
+  renderExamQ();
+}
+
+function renderExamQ(){
+  const card=document.getElementById('examCard');
+  if(!examQ.length){card.innerHTML='<div class="empty"><div class="ico">📭</div><p>暂无题目</p></div>';return;}
+  const q=examQ[examIdx],key=q.law+'|'+q.type+'|'+q.id;
+  const done=examAns[key]!==undefined;
+  const pend=examPending[key];
+  let bdg=q.type==='单选'?'<span class="q-badge s">单选</span>':q.type==='多选'?'<span class="q-badge m">多选</span>':'<span class="q-badge j">判断</span>';
+  let opts='';
+  if(q.type==='判断'){
+    const uv=done?examAns[key]:(pend||'');
+    opts=`<div class="jdg">
+      <div class="jdg-btn ${uv==='√'?'sel':''} ${done?'lk':''} ${done&&q.answer==='√'?'ok':''} ${done&&uv==='√'&&q.answer!=='√'?'err':''}" onclick="examPick(this.dataset.key,'√')" data-key="${key.replace(/"/g,'&quot;')}">✓ 正确</div>
+      <div class="jdg-btn ${uv==='×'?'sel':''} ${done?'lk':''} ${done&&q.answer==='×'?'ok':''} ${done&&uv==='×'&&q.answer!=='×'?'err':''}" onclick="examPick(this.dataset.key,'×')" data-key="${key.replace(/"/g,'&quot;')}">✗ 错误</div></div>`;
+  }else{
+    opts='<div class="opts">';
+    Object.keys(q.options||{}).forEach(k=>{
+      const isMulti=q.type==='多选';
+      const cur=done?examAns[key]:(isMulti?(pend?pend.join(''):''):(pend||''));
+      const sel=cur.includes(k);
+      let cls='';
+      if(!done)cls=sel?'sel':'';
+      else{
+        const right=q.answer.includes(k),isSel=cur.includes(k);
+        cls=(isSel&&right)?'ok':(isSel&&!right)?'err':(!isSel&&right)?'ok':'';
+      }
+      opts+=`<div class="opt ${cls} ${done?'lk':''}" onclick="examPick(this.dataset.key,'${k}',${isMulti})" data-key="${key.replace(/"/g,'&quot;')}">
+        <span class="opt-lt">${k}</span><span class="opt-txt">${q.options[k]}</span></div>`;
+    });
+    opts+='</div>';
+  }
+  if(!done){
+    const hasSel=q.type==='判断'?!!pend:(q.type==='多选'?(pend&&pend.length>0):!!pend);
+    opts+=`<div class="sub-wrap"><button class="sub-btn" ${hasSel?'':'disabled'} onclick="examSubmit()">提交答案</button></div>`;
+  }
+  let res='';
+  if(done){
+    const ok=checkA(q,examAns[key]);
+    res=`<div class="res on ${ok?'ok':'err'}"><div class="res-t">${ok?'✓ 回答正确':'✗ 回答错误'}</div><div class="res-a">正确答案：<b>${q.answer}</b></div></div>`;
+  }
+  // Bookmark
+  const bm=sBm[key]===true;
+  let nav=`<div class="nav-row"><div class="nav-arr ${examIdx===0?'lk':''}" onclick="examPrev()">◀ 上一题</div><div class="nav-arr ${examIdx===examQ.length-1?'lk':''}" onclick="examNext()">下一题 ▶</div></div>`;
+  card.innerHTML=`<div class="q-head">${bdg}<span class="q-num">第${examIdx+1}题</span><span class="q-law">${q.law}</span><button class="q-bm ${bm?'on':''}" onclick="examTogBm(this.dataset.key)" data-key="${key.replace(/"/g,'&quot;')}">${bm?'★':'☆'} 收藏</button></div>
+    <div class="q-stem">${esc(q.stem)}</div>${opts}${res}${nav}`;
+  updExamProg();
+}
+
+function examPick(key,val,multi){
+  if(examAns[key]!==undefined)return;
+  if(multi){
+    if(!examPending[key])examPending[key]=[];
+    const idx=examPending[key].indexOf(val);
+    if(idx>=0)examPending[key].splice(idx,1);else examPending[key].push(val);
+  }else{
+    examPending[key]=val;
+  }
+  renderExamQ();
+}
+
+function examSubmit(){
+  const q=examQ[examIdx],key=q.law+'|'+q.type+'|'+q.id;
+  if(examAns[key]!==undefined)return;
+  const p=examPending[key];
+  if(p===undefined||(q.type==='多选'&&p.length===0))return;
+  examAns[key]=q.type==='多选'?Array.from(p).sort().join(''):p;
+  delete examPending[key];
+  renderExamQ();
+}
+
+function examPrev(){if(examIdx>0){examIdx--;renderExamQ();}}
+function examNext(){if(examIdx<examQ.length-1){examIdx++;renderExamQ();}}
+
+function updExamProg(){
+  const t=examQ.length;
+  document.getElementById('examText').textContent=`第${examIdx+1}题/共${t}题`;
+  const answered=Object.keys(examAns).length;
+  const p=t>0?Math.round(examIdx/t*100):0;
+  document.getElementById('examPct').textContent=p+'%';
+  document.getElementById('examFill').style.width=p+'%';
+  // Correct rate
+  let correctCnt=0;
+  examQ.forEach(q=>{
+    const k=q.law+'|'+q.type+'|'+q.id;
+    if(examAns[k]!==undefined){
+      const ok=checkA(q,examAns[k]);
+      if(ok)correctCnt++;
+    }
+  });
+  document.getElementById('examRate').textContent=answered>0?`正确率 ${Math.round(correctCnt/answered*100)}% (${correctCnt}/${answered})`:'';
+  renderExamCard();
+}
+
+function togExamCard(){
+  examCardVis=!examCardVis;
+  document.getElementById('examCardPanel').style.display=examCardVis?'block':'none';
+  if(examCardVis)renderExamCard();
+}
+
+function renderExamCard(){
+  if(!examCardVis)return;
+  const g=document.getElementById('examCardGrid');
+  g.innerHTML=examQ.map((q,i)=>{
+    const k=q.law+'|'+q.type+'|'+q.id;
+    const isCur=i===examIdx;
+    const uv=examAns[k];
+    const isDone=uv!==undefined;
+    let isWrong=false;
+    if(isDone){isWrong=!checkA(q,uv);}
+    const cls=isCur?'cur':isWrong?'wrong':isDone?'done':'';
+    return `<div class="card-cell ${cls}" onclick="examJump(${i})">${i+1}</div>`;
+  }).join('');
+}
+
+function examJump(i){examIdx=i;renderExamQ();}
+
+function examTogBm(key){
+  if(sBm[key]){delete sBm[key];api('/api/bookmark','DELETE',{question_key:key});}
+  else{sBm[key]=true;api('/api/bookmark','POST',{question_key:key});}
+  renderExamQ();
+}
+
+async function endExam(){
+  if(!examActive)return;
+  const answered=Object.keys(examAns).length;
+  if(answered<examQ.length){
+    if(!confirm(`已答${answered}/${examQ.length}题，确定交卷？`))return;
+  }
+  // Save wrong answers
+  let wrongCnt=0;
+  for(const q of examQ){
+    const k=q.law+'|'+q.type+'|'+q.id;
+    const uv=examAns[k];
+    if(uv!==undefined&&!checkA(q,uv)){
+      if(!sWrong[k]){sWrong[k]=true;api('/api/wrong','POST',{question_key:k,action:'add'});}
+      wrongCnt++;
+    }
+    // Save progress
+    if(uv!==undefined){
+      sProg[k]=uv;api('/api/progress','POST',{question_key:k,status:uv});
+    }
+  }
+  const correctCnt=answered-wrongCnt;
+  examActive=false;
+  alert(`考试结束！\n答对 ${correctCnt} 题\n答错 ${wrongCnt} 题\n未答 ${examQ.length-answered} 题\n正确率 ${answered>0?Math.round(correctCnt/answered*100):0}%`);
+  showPage('home');renderHome();
+}
+
+// Swipe for exam
+document.addEventListener('DOMContentLoaded',()=>{
+  const es=document.getElementById('examScroll');
+  if(!es)return;
+  let ex=0,ey=0,et=0;
+  es.addEventListener('touchstart',e=>{const t=e.touches[0];ex=t.clientX;ey=t.clientY;et=Date.now();},{passive:true});
+  es.addEventListener('touchend',e=>{const t=e.changedTouches[0];const dx=t.clientX-ex,dy=t.clientY-ey;if(Date.now()-et<300&&Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5){if(dx<0)examNext();else examPrev();}},{passive:true});
+});
+
+// ═══ REVIEW ═══
+function reviewQ(law,type,qId,list){
+  cLaw=law;cType='all';cIdx=0;
+  if(list){
+    listMode=list.mode;listItems=list.items;
+    document.getElementById('pracTitle').textContent=list.mode==='wrong'?'❌ 错题本':'⭐ 收藏本';
+    filt=list.items.slice();
+    cIdx=filt.findIndex(q=>q.id===qId&&q.type===type&&q.law===law);
+  }else{
+    listMode='law';listItems=[];
+    document.getElementById('pracTitle').textContent='《'+law+'》';
+    filterQ();
+    cIdx=filt.findIndex(q=>q.id===qId&&q.type===type);
+  }
+  if(cIdx<0)cIdx=0;
+  showPage('prac');
+  renderQ();
+}
+
+// ═══ LIST PRACTICE ═══
+async function startListPractice(mode,law,type,qId){
+  const keys=mode==='wrong'?Object.keys(sWrong):Object.keys(sBm);
+  await loadLawsForKeys(keys);
+  let items=[];
+  const check=k=>{
+    if(mode==='wrong')return sWrong[k]===true;
+    if(mode==='bookmark')return sBm[k]===true;
+    return false;
+  };
+  Object.keys(Q).forEach(cat=>{if(cat==='_type')return;Q[cat].forEach(s=>{if(!s.questions)return;s.questions.forEach(q=>{
+    const k=qkey(s.law,q.type,q.id);
+    if(check(k))items.push({...q,law:s.law});
+  });});});
+  reviewQ(law,type,qId,{mode,items});
+}
+
+// ═══ PROFILE ═══
+function renderPrf(){
+  let total=0;
+  if(Q._type==='summary'){Object.keys(Q).forEach(cat=>{if(cat==='_type')return;Q[cat].forEach(s=>total+=s.count||0);});}
+  else{Object.values(Q).forEach(c=>c.forEach(s=>total+=s.questions.length));}
+  const done=Object.keys(sProg).length,wrong=Object.keys(sWrong).length,bm=Object.keys(sBm).length;
+  document.getElementById('prfPage').innerHTML=`
+    <div class="prf-card"><div class="prf-av">${U[0]||'?'}</div><div class="prf-name">${esc(U)}</div></div>
+    <div class="stat-g">
+      <div class="stat-b"><div class="stat-n">${total}</div><div class="stat-l">总题</div></div>
+      <div class="stat-b"><div class="stat-n">${done}</div><div class="stat-l">已做</div></div>
+      <div class="stat-b"><div class="stat-n" style="color:var(--ok)">${done-wrong}</div><div class="stat-l">正确</div></div>
+      <div class="stat-b"><div class="stat-n" style="color:var(--err)">${wrong}</div><div class="stat-l">错题</div></div>
+    </div>
+    <div class="menu">
+      <div class="menu-i" onclick="doLogout()"><span class="menu-ic">🚪</span><span class="menu-tx" style="color:var(--err)">退出登录</span><span class="menu-ar">›</span></div>
+    </div>`;
+}
+
+// ═══ INIT ═══
+window.onerror=function(m,s,l,c,e){console.error('[ERR]',m,s,l,c);return false;};
+if(T)enterApp();
+</script>
+</body>
+</html>
