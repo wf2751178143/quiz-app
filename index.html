@@ -329,14 +329,18 @@ async function enterApp(){
 }
 async function preloadAllLaws(){
   if(Q._type!=='summary')return;
-  const all=[];
-  Object.keys(Q).forEach(cat=>{if(cat==='_type')return;Q[cat].forEach(s=>{if(!s.questions)all.push(s.law);});});
-  if(!all.length)return;
-  const batchSize=5;
-  for(let i=0;i<all.length;i+=batchSize){
-    const batch=all.slice(i,i+batchSize);
-    await Promise.all(batch.map(l=>loadLaw(l,1)));
-  }
+  try{
+    const r=await api('/api/questions?all=1');
+    if(r&&!r.error){
+      Object.keys(r).forEach(cat=>{
+        if(!Q[cat])return;
+        r[cat].forEach(s=>{
+          const target=Q[cat].find(x=>x.law===s.law);
+          if(target&&!target.questions)target.questions=s.questions;
+        });
+      });
+    }
+  }catch(e){console.error('preload error:',e);}
 }
 const _loadingLaws=new Set();
 async function loadLaw(law,retries=2){
