@@ -325,21 +325,36 @@ async function enterApp(){
   }
   renderExamBtns();
   renderHome();
+  preloadAllLaws();
 }
+async function preloadAllLaws(){
+  if(Q._type!=='summary')return;
+  const all=[];
+  Object.keys(Q).forEach(cat=>{if(cat==='_type')return;Q[cat].forEach(s=>{if(!s.questions)all.push(s.law);});});
+  if(!all.length)return;
+  const batchSize=5;
+  for(let i=0;i<all.length;i+=batchSize){
+    const batch=all.slice(i,i+batchSize);
+    await Promise.all(batch.map(l=>loadLaw(l,1)));
+  }
+}
+const _loadingLaws=new Set();
 async function loadLaw(law,retries=2){
   if(Q._type==='summary'){
     for(const cat of Object.keys(Q)){
       if(cat==='_type')continue;
       for(const s of Q[cat]){
-        if(s.law===law&&!s.questions){
+        if(s.law===law&&!s.questions&&!_loadingLaws.has(law)){
+          _loadingLaws.add(law);
           for(let attempt=0;attempt<=retries;attempt++){
             try{
               const r=await api('/api/questions?law='+encodeURIComponent(law));
-              if(r[law]){s.questions=r[law][0].questions;return;}
+              if(r[law]){s.questions=r[law][0].questions;_loadingLaws.delete(law);return;}
             }catch(e){
               if(attempt<retries)await new Promise(r=>setTimeout(r,200));
             }
           }
+          _loadingLaws.delete(law);
           return;
         }
       }
