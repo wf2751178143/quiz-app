@@ -235,12 +235,18 @@ class QuizHandler(SimpleHTTPRequestHandler):
             parsed = urlparse(self.path)
             params = parse_qs(parsed.query)
             law = params.get('law', [None])[0]
+            fetch_all = params.get('all', [None])[0]
             if law:
                 for cat in data:
                     for s in data[cat]:
                         if s['law'] == law:
                             return self.send_json(200, {law: [{'law': s['law'], 'questions': s['questions']}]})
                 return self.send_json(404, {'error': '未找到该法律'})
+            if fetch_all:
+                all_data = {}
+                for cat in data:
+                    all_data[cat] = [{'law': s['law'], 'questions': s['questions']} for s in data[cat]]
+                return self.send_json(200, all_data)
             summary = {}
             for cat in data:
                 summary[cat] = [{'law': s['law'], 'count': len(s['questions'])} for s in data[cat]]
