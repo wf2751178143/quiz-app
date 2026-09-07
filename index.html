@@ -337,7 +337,7 @@ async function loadLaw(law,retries=2){
               const r=await api('/api/questions?law='+encodeURIComponent(law));
               if(r[law]){s.questions=r[law][0].questions;return;}
             }catch(e){
-              if(attempt<retries)await new Promise(r=>setTimeout(r,500*(attempt+1)));
+              if(attempt<retries)await new Promise(r=>setTimeout(r,200));
             }
           }
           return;
@@ -690,7 +690,8 @@ function renderGroupedList(items, rmFn, typeFilter, setFilterFn, lawFilter, setL
 async function loadLawsForKeys(keys){
   const laws=new Set();
   keys.forEach(k=>{const p=k.split('|');if(p.length>=1)laws.add(p[0]);});
-  for(const law of laws){await loadLaw(law);}
+  const arr=[...laws];
+  await Promise.all(arr.map(l=>loadLaw(l)));
   const missing=[];
   for(const cat of Object.keys(Q)){
     if(cat==='_type')continue;
@@ -698,13 +699,12 @@ async function loadLawsForKeys(keys){
       if(laws.has(s.law)&&!s.questions)missing.push(s.law);
     }
   }
-  if(missing.length>0){
-    for(const law of missing){await loadLaw(law,3);}
-  }
+  if(missing.length>0)await Promise.all(missing.map(l=>loadLaw(l,3)));
 }
 
 // ═══ WRONG LIST ═══
 async function renderWrong(){
+  document.getElementById('wrongPage').innerHTML='<div class="empty"><div class="ico">⏳</div><p>加载中...</p></div>';
   try{
     await loadLawsForKeys(Object.keys(sWrong));
   }catch(e){console.error('loadLawsForKeys error:',e);}
@@ -716,18 +716,6 @@ async function renderWrong(){
       items.push({...q,law:s.law});
     }
   });});});
-  if(items.length===0&&Object.keys(sWrong).length>0){
-    const needed=new Set();
-    Object.keys(sWrong).forEach(k=>{const p=k.split('|');if(p.length>=1)needed.add(p[0]);});
-    for(const law of needed){await loadLaw(law,3);}
-    Object.keys(Q).forEach(cat=>{if(cat==='_type')return;Q[cat].forEach(s=>{if(!s.questions)return;s.questions.forEach(q=>{
-      const k=qkey(s.law,q.type,q.id);
-      if(sWrong[k]){
-        if(wrongTypeFilter!=='all'&&q.type!==wrongTypeFilter)return;
-        items.push({...q,law:s.law});
-      }
-    });});});
-  }
   document.getElementById('wrongPage').innerHTML=renderGroupedList(items,'rmW',wrongTypeFilter,'setWrongType',wrongLawFilter,'setWrongLaw','wrong');
 }
 function setWrongType(t){wrongTypeFilter=t;renderWrong();}
@@ -736,6 +724,7 @@ async function rmW(k){delete sWrong[k];await api('/api/wrong','POST',{question_k
 
 // ═══ BOOKMARK LIST ═══
 async function renderBm(){
+  document.getElementById('bmPage').innerHTML='<div class="empty"><div class="ico">⏳</div><p>加载中...</p></div>';
   try{
     await loadLawsForKeys(Object.keys(sBm));
   }catch(e){console.error('loadLawsForKeys error:',e);}
@@ -747,18 +736,6 @@ async function renderBm(){
       items.push({...q,law:s.law});
     }
   });});});
-  if(items.length===0&&Object.keys(sBm).length>0){
-    const needed=new Set();
-    Object.keys(sBm).forEach(k=>{const p=k.split('|');if(p.length>=1)needed.add(p[0]);});
-    for(const law of needed){await loadLaw(law,3);}
-    Object.keys(Q).forEach(cat=>{if(cat==='_type')return;Q[cat].forEach(s=>{if(!s.questions)return;s.questions.forEach(q=>{
-      const k=qkey(s.law,q.type,q.id);
-      if(sBm[k]){
-        if(bmTypeFilter!=='all'&&q.type!==bmTypeFilter)return;
-        items.push({...q,law:s.law});
-      }
-    });});});
-  }
   document.getElementById('bmPage').innerHTML=renderGroupedList(items,'rmB',bmTypeFilter,'setBmType',bmLawFilter,'setBmLaw','bookmark');
 }
 function setBmType(t){bmTypeFilter=t;renderBm();}
@@ -976,15 +953,6 @@ async function startListPractice(mode,law,type,qId){
     const k=qkey(s.law,q.type,q.id);
     if(check(k))items.push({...q,law:s.law});
   });});});
-  if(items.length===0&&keys.length>0){
-    const needed=new Set();
-    keys.forEach(k=>{const p=k.split('|');if(p.length>=1)needed.add(p[0]);});
-    for(const l of needed){await loadLaw(l,3);}
-    Object.keys(Q).forEach(cat=>{if(cat==='_type')return;Q[cat].forEach(s=>{if(!s.questions)return;s.questions.forEach(q=>{
-      const k=qkey(s.law,q.type,q.id);
-      if(check(k))items.push({...q,law:s.law});
-    });});});
-  }
   reviewQ(law,type,qId,{mode,items});
 }
 
